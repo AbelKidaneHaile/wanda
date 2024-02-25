@@ -40,15 +40,16 @@ def get_wikitext2(nsamples, seed, seqlen, tokenizer):
 # Load and process c4 dataset
 def get_c4(nsamples, seed, seqlen, tokenizer):
     # Load train and validation datasets
-    # traindata = load_dataset('allenai/c4', 'allenai--c4', data_files={'train': 'en/c4-train.00000-of-01024.json.gz'}, split='train')
-    # valdata = load_dataset('allenai/c4', 'allenai--c4', data_files={'validation': 'en/c4-validation.00000-of-00008.json.gz'}, split='validation')
-    traindata = load_dataset("allenai/c4", data_files="en/c4-train.00001-of-01024.json.gz")['train']
-    valdata = load_dataset('allenai/c4', data_files='en/c4-validation.00000-of-00008.json.gz')['train']
+    traindata = load_dataset('allenai/c4', 'allenai--c4', data_files={'train': 'en/c4-train.00000-of-01024.json.gz'}, split='train')
+    valdata = load_dataset('allenai/c4', 'allenai--c4', data_files={'validation': 'en/c4-validation.00000-of-00008.json.gz'}, split='validation')
+    # traindata = load_dataset("allenai/c4", data_files="en/c4-train.00001-of-01024.json.gz")['train']
+    # valdata = load_dataset('allenai/c4', data_files='en/c4-validation.00000-of-00008.json.gz')['train']
     
 
     # Generate samples from training set
     random.seed(seed)
     trainloader = []
+    
     for _ in range(nsamples):
         while True:
             i = random.randint(0, len(traindata) - 1)
@@ -61,7 +62,7 @@ def get_c4(nsamples, seed, seqlen, tokenizer):
         tar = inp.clone()
         tar[:, :-1] = -100
         trainloader.append((inp, tar))
-
+    print('Preparing tokens for validation data')
     # Prepare validation dataset
     valenc = tokenizer(' '.join(valdata[:1100]['text']), return_tensors='pt')
     valenc = valenc.input_ids[:, :(256 * seqlen)]
@@ -69,7 +70,7 @@ def get_c4(nsamples, seed, seqlen, tokenizer):
     return trainloader, valenc
 
 # Function to select the appropriate loader based on dataset name
-def get_loaders(name, nsamples=128, seed=0, seqlen=2048, tokenizer=None):
+def get_loaders(name, nsamples=128, seed=0, seqlen=8192, tokenizer=None):
     if 'wikitext2' in name:
         return get_wikitext2(nsamples, seed, seqlen, tokenizer)
     if "c4" in name:
