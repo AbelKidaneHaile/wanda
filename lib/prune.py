@@ -58,7 +58,9 @@ def check_sparsity(model):
 def prepare_calibration_input(model, dataloader, device):
     use_cache = model.config.use_cache
     model.config.use_cache = False
-    layers = model.model.layers
+    # layers = model.model.layers
+    print("ABEL-->prune.py-->line62")
+    layers = model.transformer.h
 
     # dev = model.hf_device_map["model.embed_tokens"]
     if "model.embed_tokens" in model.hf_device_map:
